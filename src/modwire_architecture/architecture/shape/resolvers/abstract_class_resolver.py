@@ -23,7 +23,10 @@ class AbstractClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         config: ShapeConfig,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for abstract_class_result in architecture_map.code_map.abstract_classes().all():
+        for abstract_class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.abstract_classes().all(),
+        ):
             violations.extend(
                 self.abstract_class_violations(
                     source_id=abstract_class_result.source_id,
