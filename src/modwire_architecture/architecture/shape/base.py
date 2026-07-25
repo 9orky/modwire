@@ -4,7 +4,7 @@ from typing import Protocol, TypeVar
 
 from modwire_extraction.code import QueryableCodeMap
 from modwire_architecture.shared import ModwireModel
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 RealmResult = TypeVar("RealmResult")
@@ -66,7 +66,7 @@ class ShapeResolverInterface(abc.ABC):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         raise NotImplementedError
 
