@@ -23,7 +23,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         config: ShapeConfig,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for function_result in architecture_map.code_map.functions().all():
+        for function_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.functions().all(),
+        ):
             violations.extend(
                 self.callable_violations(
                     source_id=function_result.source_id,
@@ -35,7 +38,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                 )
             )
 
-        for class_result in architecture_map.code_map.classes().all():
+        for class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.classes().all(),
+        ):
             for method in getattr(class_result.item, "methods", ()):
                 violations.extend(
                     self.callable_violations(
@@ -48,7 +54,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     )
                 )
 
-        for interface_result in architecture_map.code_map.interfaces().all():
+        for interface_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.interfaces().all(),
+        ):
             for method in getattr(interface_result.item, "methods", ()):
                 violations.extend(
                     self.callable_violations(
@@ -61,7 +70,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     )
                 )
 
-        for abstract_class_result in architecture_map.code_map.abstract_classes().all():
+        for abstract_class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.abstract_classes().all(),
+        ):
             abstract_class = abstract_class_result.item
             for method in (
                 *getattr(abstract_class, "abstract_methods", ()),
