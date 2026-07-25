@@ -23,7 +23,10 @@ class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         config: ShapeConfig,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for interface_result in architecture_map.code_map.interfaces().all():
+        for interface_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.interfaces().all(),
+        ):
             source_interface = interface_result.item
             for signature in getattr(source_interface, "signatures", ()):
                 violations.extend(
@@ -34,7 +37,10 @@ class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                         config=config,
                     )
                 )
-        for type_result in architecture_map.code_map.types().all():
+        for type_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.types().all(),
+        ):
             source_type = type_result.item
             for signature in getattr(source_type, "signatures", ()):
                 violations.extend(
