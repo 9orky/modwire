@@ -1,57 +1,125 @@
-from types import SimpleNamespace
-
-import pytest
-
-from modwire_architecture.architecture.shape.resolvers.import_resolver import ImportResolver
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture import ArchitectureConfig, Modwire
+from modwire_extraction import QueryableCodeMap
+from modwire_extraction.code import CodeMap
 
 
-class ImportQuery:
-    def __init__(self, *imports):
-        self._imports = imports
-
-    def imports(self):
-        return self
-
-    def all(self):
-        return self._imports
-
-
-def import_result(crossing_type: str, *, uses_joined_import: bool):
-    source_import = SimpleNamespace(
-        crossing_type=crossing_type,
-        uses_joined_import=uses_joined_import,
-        is_aliased=False,
-        normalized_path="package.api",
-        join_key="package.api",
+def test_shape_realms_apply_their_own_defaulted_rules_to_matching_files() -> None:
+    config = ArchitectureConfig(
+        shape={
+            "realms": (
+                {
+                    "name": "application",
+                    "match": "src/*",
+                },
+                {
+                    "name": "tests",
+                    "match": "tests/*",
+                    "shape": {"max_functions_per_file": -1},
+                },
+            )
+        }
     )
-    return SimpleNamespace(source_id="consumer.py", item=source_import)
+    code_map = queryable_map(
+        "src/application.py",
+        "tests/test_application.py",
+    )
+
+    shape = next(
+        report
+        for report in Modwire().architecture(config).report(code_map)
+        if report.metadata.id == "architecture.violations.shape"
+    )
+
+    assert tuple(
+        (violation.realm, violation.source_id, violation.rule_name)
+        for violation in shape.violations
+    ) == (("application", "src/application.py", "max_functions_per_file"),)
 
 
-@pytest.mark.parametrize(
-    ("crossing_type", "uses_joined_import"),
-    (("module", False), ("symbol", True)),
-)
-def test_default_import_shape_allows_module_and_joined_symbol_imports(
-    crossing_type: str,
-    uses_joined_import: bool,
-) -> None:
-    architecture_map = SimpleNamespace(
-        code_map=ImportQuery(
-            import_result(crossing_type, uses_joined_import=uses_joined_import)
+def test_shape_realms_report_each_matching_glob_independently() -> None:
+    config = ArchitectureConfig(
+        shape={
+            "realms": (
+                {
+                    "name": "application",
+                    "match": "src/*",
+                },
+                {
+                    "name": "repository",
+                    "match": "*",
+                },
+            )
+        }
+    )
+
+    shape = next(
+        report
+        for report in Modwire().architecture(config).report(
+            queryable_map("src/application.py")
+        )
+        if report.metadata.id == "architecture.violations.shape"
+    )
+
+    assert tuple(
+        (violation.realm, violation.source_id, violation.rule_name)
+        for violation in shape.violations
+    ) == (
+        ("application", "src/application.py", "max_functions_per_file"),
+        ("repository", "src/application.py", "max_functions_per_file"),
+    )
+
+
+def queryable_map(*paths: str) -> QueryableCodeMap:
+    files = {path: source_file(path) for path in paths}
+    return QueryableCodeMap(
+        CodeMap.from_dict(
+            {
+                "language": "test",
+                "extraction": {
+                    "files": files,
+                    "modules": {
+                        source["module_id"]: file_id
+                        for file_id, source in files.items()
+                    },
+                    "files_found": len(files),
+                    "files_excluded": 0,
+                },
+                "dependency_graph": {
+                    "nodes": {
+                        path: {"id": path, "kind": "file"}
+                        for path in paths
+                    },
+                    "edges": [],
+                },
+            }
         )
     )
 
-    assert ImportResolver().resolve(architecture_map, ShapeConfig()) == ()
 
-
-def test_default_import_shape_rejects_unjoined_symbol_imports() -> None:
-    architecture_map = SimpleNamespace(
-        code_map=ImportQuery(import_result("symbol", uses_joined_import=False))
-    )
-
-    violations = ImportResolver().resolve(architecture_map, ShapeConfig())
-
-    assert tuple(violation.rule_name for violation in violations) == (
-        "require_joined_imports",
-    )
+def source_file(file_id: str) -> dict[str, object]:
+    return {
+        "file_id": file_id,
+        "module_id": file_id.rsplit(".", 1)[0],
+        "imports": [],
+        "exports": [],
+        "classes": [],
+        "interfaces": [],
+        "types": [],
+        "abstract_classes": [],
+        "functions": [
+            {
+                "name": "entrypoint",
+                "visibility": "public",
+                "visibility_intent": "public",
+                "line_count": 1,
+                "declared_args": 0,
+                "optional_args": 0,
+            }
+        ],
+        "values": [],
+        "callables": [],
+        "calls": [],
+        "line_count": 1,
+        "code_line_count": 1,
+        "public_symbol_count": 1,
+    }

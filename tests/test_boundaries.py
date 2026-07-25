@@ -17,7 +17,8 @@ def test_public_api_evaluates_each_configured_flow_realm() -> None:
                 ),
                 "analyzers": ("no-cycles",),
             },
-        }
+        },
+        shape={"realms": ({"name": "project", "match": "*"},)},
     )
     code_map = queryable_map(
         "backend/orders/service.py",
@@ -77,7 +78,8 @@ def test_public_api_enforces_closed_module_boundaries() -> None:
                 {"source": "shared", "disallow": ("module",)},
             ),
             "flow": {"module_tag": "module"},
-        }
+        },
+        shape={"realms": ({"name": "project", "match": "*"},)},
     )
     code_map = queryable_map(
         "src/a/one.py",

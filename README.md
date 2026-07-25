@@ -16,11 +16,36 @@ def analyze(code_map: QueryableCodeMap):
 Install the library with:
 
 ```bash
-python -m pip install 'modwire-architecture>=6,<7'
+python -m pip install 'modwire-architecture>=7,<8'
 ```
 
 Core accepts in-memory configuration and an already extracted code map. Callers
 own source discovery, configuration loading, and output handling.
+
+## Shape realms
+
+Shape rules are configured through one or more required realms. A realm matches
+source IDs with its own glob and is independent of architecture-boundary tags.
+Each realm's `shape` object uses the standard shape-rule defaults; specify only
+the values that differ for that realm.
+
+```yaml
+architecture:
+  shape:
+    realms:
+      - name: project
+        match: "*"
+        shape:
+          max_function_lines: 40
+
+      - name: tests
+        match: tests/*
+        shape:
+          max_functions_per_file: -1
+          allow_optional_function_args: true
+```
+
+A source matching multiple realms is evaluated under each realm's rules.
 
 ## Package shape
 

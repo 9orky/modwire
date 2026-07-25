@@ -5,7 +5,7 @@ from ..base import (
     ShapeViolation,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -20,10 +20,13 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for function_result in architecture_map.code_map.functions().all():
+        for function_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.functions().all(),
+        ):
             violations.extend(
                 self.callable_violations(
                     source_id=function_result.source_id,
@@ -35,7 +38,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                 )
             )
 
-        for class_result in architecture_map.code_map.classes().all():
+        for class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.classes().all(),
+        ):
             for method in getattr(class_result.item, "methods", ()):
                 violations.extend(
                     self.callable_violations(
@@ -48,7 +54,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     )
                 )
 
-        for interface_result in architecture_map.code_map.interfaces().all():
+        for interface_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.interfaces().all(),
+        ):
             for method in getattr(interface_result.item, "methods", ()):
                 violations.extend(
                     self.callable_violations(
@@ -61,7 +70,10 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     )
                 )
 
-        for abstract_class_result in architecture_map.code_map.abstract_classes().all():
+        for abstract_class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.abstract_classes().all(),
+        ):
             abstract_class = abstract_class_result.item
             for method in (
                 *getattr(abstract_class, "abstract_methods", ()),
@@ -88,7 +100,7 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         symbol: CallableShape,
         line_limit: int,
         allow_optional_args: bool,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         line_rule = (
             "max_function_lines" if symbol_kind == "function" else "max_method_lines"

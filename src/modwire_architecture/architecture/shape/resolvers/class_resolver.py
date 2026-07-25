@@ -7,7 +7,7 @@ from ..base import (
     ShapeViolation,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -22,10 +22,13 @@ class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for class_result in architecture_map.code_map.classes().all():
+        for class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.classes().all(),
+        ):
             violations.extend(
                 self.class_violations(
                     source_id=class_result.source_id,
@@ -34,7 +37,10 @@ class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     config=config,
                 )
             )
-        for interface_result in architecture_map.code_map.interfaces().all():
+        for interface_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.interfaces().all(),
+        ):
             violations.extend(
                 self.class_violations(
                     source_id=interface_result.source_id,
@@ -43,7 +49,10 @@ class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     config=config,
                 )
             )
-        for type_result in architecture_map.code_map.types().all():
+        for type_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.types().all(),
+        ):
             violations.extend(
                 self.class_violations(
                     source_id=type_result.source_id,
@@ -60,7 +69,7 @@ class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         source_id: str,
         symbol_kind: str,
         symbol: NamedLineShape,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations = [
             self.limit_violation(

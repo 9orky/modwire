@@ -7,7 +7,7 @@ from ..base import (
     ShapeViolation,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class PropertyResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -22,13 +22,16 @@ class PropertyResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         if config.allow_optional_class_properties:
             return ()
 
         violations: list[ShapeViolation] = []
-        for class_result in architecture_map.code_map.classes().all():
+        for class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.classes().all(),
+        ):
             source_class = class_result.item
             violations.extend(
                 self.property_violations(
@@ -38,7 +41,10 @@ class PropertyResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     properties=getattr(source_class, "properties", ()),
                 )
             )
-        for interface_result in architecture_map.code_map.interfaces().all():
+        for interface_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.interfaces().all(),
+        ):
             source_interface = interface_result.item
             violations.extend(
                 self.property_violations(
@@ -48,7 +54,10 @@ class PropertyResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     properties=getattr(source_interface, "properties", ()),
                 )
             )
-        for type_result in architecture_map.code_map.types().all():
+        for type_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.types().all(),
+        ):
             source_type = type_result.item
             violations.extend(
                 self.property_violations(
@@ -58,7 +67,10 @@ class PropertyResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                     properties=getattr(source_type, "properties", ()),
                 )
             )
-        for abstract_class_result in architecture_map.code_map.abstract_classes().all():
+        for abstract_class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.abstract_classes().all(),
+        ):
             abstract_class = abstract_class_result.item
             violations.extend(
                 self.property_violations(

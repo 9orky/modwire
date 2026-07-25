@@ -5,7 +5,7 @@ from ..base import (
     ShapeViolation,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config.shape import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class AbstractClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -20,10 +20,13 @@ class AbstractClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for abstract_class_result in architecture_map.code_map.abstract_classes().all():
+        for abstract_class_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.abstract_classes().all(),
+        ):
             violations.extend(
                 self.abstract_class_violations(
                     source_id=abstract_class_result.source_id,
@@ -38,7 +41,7 @@ class AbstractClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         *,
         source_id: str,
         abstract_class: AbstractClassShape,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         method_count = len(abstract_class.abstract_methods) + len(
             abstract_class.concrete_methods

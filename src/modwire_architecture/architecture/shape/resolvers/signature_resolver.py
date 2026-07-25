@@ -5,7 +5,7 @@ from ..base import (
     SignatureShape,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -20,10 +20,13 @@ class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
-        for interface_result in architecture_map.code_map.interfaces().all():
+        for interface_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.interfaces().all(),
+        ):
             source_interface = interface_result.item
             for signature in getattr(source_interface, "signatures", ()):
                 violations.extend(
@@ -34,7 +37,10 @@ class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
                         config=config,
                     )
                 )
-        for type_result in architecture_map.code_map.types().all():
+        for type_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.types().all(),
+        ):
             source_type = type_result.item
             for signature in getattr(source_type, "signatures", ()):
                 violations.extend(
@@ -53,7 +59,7 @@ class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         source_id: str,
         symbol_name: str,
         signature: SignatureShape,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations = [
             self.limit_violation(

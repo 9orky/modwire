@@ -4,7 +4,7 @@ from ..base import (
     ShapeResolverInterface,
     ShapeViolation,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class ImportResolver(ShapeResolverInterface, BaseShapeResolver):
@@ -19,12 +19,15 @@ class ImportResolver(ShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
         allowed_crossing_types = set(config.allowed_import_crossing_types)
 
-        for import_result in architecture_map.code_map.imports().all():
+        for import_result in self.realm_results(
+            architecture_map,
+            architecture_map.code_map.imports().all(),
+        ):
             source_id = import_result.source_id
             source_import = import_result.item
 

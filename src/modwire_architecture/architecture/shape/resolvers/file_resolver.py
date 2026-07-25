@@ -4,7 +4,7 @@ from ..base import (
     ShapeResolverInterface,
     ShapeViolation,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class FileResolver(ShapeResolverInterface, BaseShapeResolver):
@@ -19,12 +19,12 @@ class FileResolver(ShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation | None] = []
         code_map = architecture_map.code_map
 
-        for source_id in code_map.source_ids():
+        for source_id in self.realm_source_ids(architecture_map):
             violations.extend(
                 [
                     self.limit_violation(

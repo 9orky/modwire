@@ -64,4 +64,4 @@ class BoundariesConfig(ModwireConfigModel):
 
 class ArchitectureConfig(ModwireConfigModel):
     boundaries: BoundariesConfig = Field(default_factory=BoundariesConfig)
-    shape: ShapeConfig = Field(default_factory=ShapeConfig)
+    shape: ShapeConfig
