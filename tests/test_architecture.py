@@ -1,8 +1,8 @@
-from modwire_architecture.architecture import ArchitectureApplication, ArchitectureConfig
+from modwire_architecture import ArchitectureConfig, Modwire
 
 
-def test_standard_architecture_application_exposes_stable_report_catalog() -> None:
-    catalog = ArchitectureApplication.standard(ArchitectureConfig()).reports()
+def test_published_api_exposes_the_architecture_report_catalog() -> None:
+    catalog = Modwire().architecture(project_config()).reports()
 
     assert tuple(report.id for report in catalog.reports) == (
         "architecture.map",
@@ -16,4 +16,10 @@ def test_standard_architecture_application_exposes_stable_report_catalog() -> No
         "architecture.insights.coherence",
         "architecture.insights.callables",
         "architecture.insights.exports",
+    )
+
+
+def project_config() -> ArchitectureConfig:
+    return ArchitectureConfig(
+        shape={"realms": ({"name": "project", "match": "*"},)}
     )

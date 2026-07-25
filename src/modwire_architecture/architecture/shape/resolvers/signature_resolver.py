@@ -59,7 +59,7 @@ class SignatureResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         source_id: str,
         symbol_name: str,
         signature: SignatureShape,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations = [
             self.limit_violation(

@@ -16,7 +16,7 @@ def analyze(code_map: QueryableCodeMap):
 Install the library with:
 
 ```bash
-python -m pip install 'modwire-architecture>=6,<7'
+python -m pip install 'modwire-architecture>=7,<8'
 ```
 
 Core accepts in-memory configuration and an already extracted code map. Callers

@@ -1,5 +1,18 @@
 # Changelog
 
+## 7.0.0 - 2026-07-25
+
+### Breaking Changes
+
+- Require every architecture configuration to declare at least one shape realm.
+- Replace global shape rules with independently scoped realm rules.
+
+### Added
+
+- Add independently glob-matched shape realms with complete per-realm rule
+  defaults and realm-qualified violations.
+- Add a black-box functional verification suite and `make verify` release gate.
+
 ## 6.0.0 - Unreleased
 
 ### Breaking Changes
