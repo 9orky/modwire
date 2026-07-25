@@ -1,9 +1,9 @@
-from pydantic import field_validator
+from pydantic import Field, field_validator, model_validator
 
 from ..base import ModwireConfigModel
 
 
-class ShapeConfig(ModwireConfigModel):
+class ShapeRules(ModwireConfigModel):
     max_classes_per_file: int = -1
     max_interfaces_per_file: int = -1
     max_types_per_file: int = -1
@@ -38,3 +38,27 @@ class ShapeConfig(ModwireConfigModel):
         if limit < -1:
             raise ValueError("Limit must be -1 or a non-negative integer")
         return limit
+
+
+class ShapeRealm(ModwireConfigModel):
+    name: str
+    match: str
+    shape: ShapeRules = Field(default_factory=ShapeRules)
+
+    @field_validator("name", "match")
+    @classmethod
+    def require_value(cls, value: str) -> str:
+        if not value:
+            raise ValueError("Shape realm name and match pattern cannot be empty")
+        return value
+
+
+class ShapeConfig(ModwireConfigModel):
+    realms: tuple[ShapeRealm, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def unique_realms(self) -> "ShapeConfig":
+        names = tuple(realm.name for realm in self.realms)
+        if len(names) != len(set(names)):
+            raise ValueError("Shape realm names must be unique")
+        return self

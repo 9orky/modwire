@@ -10,7 +10,7 @@ from .layers import Argument, Component, Layer, LayersConfig, Symbol
 from .modules import ModuleLayer, ModuleLayout, ModulesConfig
 from .modwire import ModwireConfig
 from .projects import ProjectLayout, ProjectsConfig, ProjectStack
-from .shape import ShapeConfig
+from .shape import ShapeConfig, ShapeRealm
 
 
 __all__ = [
@@ -31,6 +31,7 @@ __all__ = [
     "ProjectStack",
     "ProjectsConfig",
     "ShapeConfig",
+    "ShapeRealm",
     "Symbol",
     "TagRule",
 ]
