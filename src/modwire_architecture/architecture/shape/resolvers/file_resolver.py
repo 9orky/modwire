@@ -25,6 +25,8 @@ class FileResolver(ShapeResolverInterface, BaseShapeResolver):
         code_map = architecture_map.code_map
 
         for source_id in code_map.source_ids():
+            if not self.source_is_in_realm(architecture_map, source_id):
+                continue
             violations.extend(
                 [
                     self.limit_violation(
