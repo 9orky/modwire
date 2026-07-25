@@ -24,9 +24,7 @@ class FileResolver(ShapeResolverInterface, BaseShapeResolver):
         violations: list[ShapeViolation | None] = []
         code_map = architecture_map.code_map
 
-        for source_id in code_map.source_ids():
-            if not self.source_is_in_realm(architecture_map, source_id):
-                continue
+        for source_id in self.realm_source_ids(architecture_map):
             violations.extend(
                 [
                     self.limit_violation(
