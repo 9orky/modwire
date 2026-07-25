@@ -48,7 +48,7 @@ Issues = "https://github.com/modwire/modwire-architecture/issues"
 dev = [
     "build>=1.2",
     "pytest>=8.0",
-    "ruff>=0.8",
+    "ruff>=0.8,<0.16",
     "twine>=5.1",
 ]
 
@@ -56,7 +56,7 @@ dev = [
 dev = [
     "build>=1.2",
     "pytest>=8.0",
-    "ruff>=0.8",
+    "ruff>=0.8,<0.16",
     "twine>=5.1",
 ]
 

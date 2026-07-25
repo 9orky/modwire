@@ -334,7 +334,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12" },
     { name = "pydantic-yaml", specifier = ">=1.7.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8,<0.16" },
     { name = "twine", marker = "extra == 'dev'", specifier = ">=5.1" },
 ]
 provides-extras = ["dev"]
@@ -343,7 +343,7 @@ provides-extras = ["dev"]
 dev = [
     { name = "build", specifier = ">=1.2" },
     { name = "pytest", specifier = ">=8.0" },
-    { name = "ruff", specifier = ">=0.8" },
+    { name = "ruff", specifier = ">=0.8,<0.16" },
     { name = "twine", specifier = ">=5.1" },
 ]
 
