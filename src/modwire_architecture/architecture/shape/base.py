@@ -9,6 +9,8 @@ from modwire_architecture.shared.config import ShapeConfig
 
 class ArchitectureMapQuery(Protocol):
     code_map: QueryableCodeMap
+    shape_realm_name: str
+    shape_realm_source_ids: frozenset[str]
 
 
 class NamedLineShape(Protocol):
@@ -41,6 +43,7 @@ class ShapeViolation(ModwireModel):
     rule_name: str
     actual: int | str | bool
     limit: int | str | bool
+    realm: str = ""
     symbol_kind: str = ""
     symbol_name: str = ""
 
@@ -70,6 +73,14 @@ class SymbolShapeResolverInterface(ShapeResolverInterface):
 
 
 class BaseShapeResolver:
+    def source_is_in_realm(
+        self,
+        architecture_map: ArchitectureMapQuery,
+        source_id: str,
+    ) -> bool:
+        source_ids = getattr(architecture_map, "shape_realm_source_ids", None)
+        return source_ids is None or source_id in source_ids
+
     def limit_violation(
         self,
         *,
