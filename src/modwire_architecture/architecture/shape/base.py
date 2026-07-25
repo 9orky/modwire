@@ -1,10 +1,13 @@
 import abc
-from collections.abc import Sequence
-from typing import Protocol
+from collections.abc import Iterable, Iterator, Sequence
+from typing import Protocol, TypeVar
 
 from modwire_extraction.code import QueryableCodeMap
 from modwire_architecture.shared import ModwireModel
 from modwire_architecture.shared.config import ShapeConfig
+
+
+RealmResult = TypeVar("RealmResult")
 
 
 class ArchitectureMapQuery(Protocol):
@@ -73,6 +76,27 @@ class SymbolShapeResolverInterface(ShapeResolverInterface):
 
 
 class BaseShapeResolver:
+    def realm_source_ids(
+        self,
+        architecture_map: ArchitectureMapQuery,
+    ) -> Iterator[str]:
+        return (
+            source_id
+            for source_id in architecture_map.code_map.source_ids()
+            if self.source_is_in_realm(architecture_map, source_id)
+        )
+
+    def realm_results(
+        self,
+        architecture_map: ArchitectureMapQuery,
+        results: Iterable[RealmResult],
+    ) -> Iterator[RealmResult]:
+        return (
+            result
+            for result in results
+            if self.source_is_in_realm(architecture_map, result.source_id)
+        )
+
     def source_is_in_realm(
         self,
         architecture_map: ArchitectureMapQuery,
