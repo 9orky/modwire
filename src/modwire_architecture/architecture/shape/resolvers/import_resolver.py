@@ -26,6 +26,8 @@ class ImportResolver(ShapeResolverInterface, BaseShapeResolver):
 
         for import_result in architecture_map.code_map.imports().all():
             source_id = import_result.source_id
+            if not self.source_is_in_realm(architecture_map, source_id):
+                continue
             source_import = import_result.item
 
             if not config.allow_import_aliases and source_import.is_aliased:
