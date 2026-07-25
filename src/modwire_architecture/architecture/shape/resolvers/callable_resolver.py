@@ -5,7 +5,7 @@ from ..base import (
     ShapeViolation,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -20,7 +20,7 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
         for function_result in self.realm_results(
@@ -100,7 +100,7 @@ class CallableResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         symbol: CallableShape,
         line_limit: int,
         allow_optional_args: bool,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         line_rule = (
             "max_function_lines" if symbol_kind == "function" else "max_method_lines"

@@ -7,7 +7,7 @@ from ..base import (
     ShapeViolation,
     SymbolShapeResolverInterface,
 )
-from modwire_architecture.shared.config import ShapeConfig
+from modwire_architecture.shared.config.shape import ShapeRules
 
 
 class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
@@ -22,7 +22,7 @@ class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
     def resolve(
         self,
         architecture_map: ArchitectureMapQuery,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations: list[ShapeViolation] = []
         for class_result in self.realm_results(
@@ -69,7 +69,7 @@ class ClassResolver(SymbolShapeResolverInterface, BaseShapeResolver):
         source_id: str,
         symbol_kind: str,
         symbol: NamedLineShape,
-        config: ShapeConfig,
+        config: ShapeRules,
     ) -> tuple[ShapeViolation, ...]:
         violations = [
             self.limit_violation(
